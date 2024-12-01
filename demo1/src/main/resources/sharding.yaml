@@ -1,0 +1,68 @@
+dataSources:
+  master0:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+#    jdbcUrl: jdbc:mysql://192.168.1.167:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    jdbcUrl: jdbc:mysql://192.168.31.168:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+  master1:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+#    jdbcUrl: jdbc:mysql://192.168.1.169:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    jdbcUrl: jdbc:mysql://192.168.31.47:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+rules:
+  - !SHARDING
+    tables:
+      project:
+        actualDataNodes: master${0..1}.project${0..1}
+        tableStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: table_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+    defaultShardingColumn: id
+    # 绑定表 用于多表联查时防止出现笛卡尔积  提高查询效率
+    bindingTables:
+      - project
+    defaultDatabaseStrategy:
+      standard:
+        shardingColumn: user_id
+        shardingAlgorithmName: database_inline
+    defaultTableStrategy:
+      none:
+    shardingAlgorithms:
+      table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: project${id % 2}
+          # 是否允许范围查询。注意：范围查询会无视分片策略，进行全路由，默认值false
+          allow-range-query-with-inline-sharding: true
+      database_inline:
+        type: INLINE
+        props:
+          algorithm-expression: master${user_id % 2}
+          # 是否允许范围查询。注意：范围查询会无视分片策略，进行全路由，默认值false
+          allow-range-query-with-inline-sharding: true
+    keyGenerators:
+      snowflake:
+        type: SNOWFLAKE
+
+#      - "*.*"
+#    defaultDataSource: master
+#  - !READWRITE_SPLITTING
+#    dataSources:
+#      readwrite_ds:
+#        writeDataSourceName: master0
+#        readDataSourceNames:
+#          - slave
+#        loadBalancerName: random
+#    loadBalancers:
+#      random:
+#        type: RANDOM
+props:
+  sql-show: true
