@@ -18,42 +18,93 @@ rules:
     tables:
       project:
         actualDataNodes: master${0..1}.project${0..1}
+#        # 单分片键
+#        databaseStrategy:
+#          standard:
+#            shardingColumn: user_id
+#            shardingAlgorithmName: database_inline
+#        # 混合分片键
+#        databaseStrategy:
+#          complex:
+#            shardingColumns: id,user_id
+#            shardingAlgorithmName: database_complex_inline
+        # 自定义类分片键
+        databaseStrategy:
+          complex:
+            shardingColumns: id,user_id
+            shardingAlgorithmName: database_class_based_inline
+
+#        # 单分片键
+#        tableStrategy:
+#          standard:
+#            shardingColumn: id
+#            shardingAlgorithmName: table_inline
+#        # 混合分分片键
+#        tableStrategy:
+#          complex:
+#            shardingColumns: id,user_id
+#            shardingAlgorithmName: table_class_based_inline
+        # 强制分片键
         tableStrategy:
-          standard:
-            shardingColumn: id
-            shardingAlgorithmName: table_inline
+          hint:
+            shardingAlgorithmName: table_hint_inline
         keyGenerateStrategy:
           column: id
           keyGeneratorName: snowflake
-    defaultShardingColumn: id
-    # 绑定表 用于多表联查时防止出现笛卡尔积  提高查询效率
+
+#    # 绑定表 用于多表联查时防止出现笛卡尔积  提高查询效率
     bindingTables:
       - project
-    defaultDatabaseStrategy:
-      standard:
-        shardingColumn: user_id
-        shardingAlgorithmName: database_inline
-    defaultTableStrategy:
-      none:
+#    defaultShardingColumn: id
+#    defaultDatabaseStrategy:
+#      standard:
+#        shardingColumn: user_id
+#        shardingAlgorithmName: database_inline
+#    defaultTableStrategy:
+#      none:
+
     shardingAlgorithms:
+      # 行表达式分片算法
       table_inline:
         type: INLINE
         props:
           algorithm-expression: project${id % 2}
           # 是否允许范围查询。注意：范围查询会无视分片策略，进行全路由，默认值false
           allow-range-query-with-inline-sharding: true
+      # 自定义分片算法
+      table_class_based_inline:
+        type: CLASS_BASED
+        props:
+          strategy: COMPLEX
+          algorithmClassName: com.lx.framework.demo1.project.config.ClassBasedTableComplexTableAlgorithm
+      # Hint 行表达式分片算法
+      table_hint_inline:
+        type: HINT_INLINE
+        props:
+          algorithm-expression: project$->{value}
+
       database_inline:
         type: INLINE
         props:
           algorithm-expression: master${user_id % 2}
           # 是否允许范围查询。注意：范围查询会无视分片策略，进行全路由，默认值false
           allow-range-query-with-inline-sharding: true
+      database_complex_inline:
+        type: COMPLEX_INLINE
+        props:
+          algorithm-expression: master${(id + user_id + 1) % 2}
+          # 是否允许范围查询。注意：范围查询会无视分片策略，进行全路由，默认值false
+          allow-range-query-with-inline-sharding: true
+      database_class_based_inline:
+        type: CLASS_BASED
+        props:
+          strategy: COMPLEX
+          algorithmClassName: com.lx.framework.demo1.project.config.ClassBasedDatasourceComplexTableAlgorithm
+
     keyGenerators:
       snowflake:
         type: SNOWFLAKE
 
-#      - "*.*"
-#    defaultDataSource: master
 #  - !READWRITE_SPLITTING
 #    dataSources:
 #      readwrite_ds:

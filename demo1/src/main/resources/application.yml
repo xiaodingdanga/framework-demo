@@ -62,7 +62,9 @@ spring:
           initial-interval: 2000
 
 mybatis-plus:
-  mapper-locations: classpath:com/lx/framework/tool/demo/mapper/xml/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:com/lx/framework/demo1/project/mapper/xml/*.xml
 logging:
   config: classpath:log4j2.xml
   #配置mybatis打印sql语句

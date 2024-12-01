@@ -7,6 +7,7 @@ import com.lx.framework.demo1.project.mapper.ProjectMapper;
 import com.lx.framework.demo1.project.service.ProjectService;
 import com.lx.framework.demo1.utils.SnowflakeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shardingsphere.infra.hint.HintManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -36,24 +37,29 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
     @Override
     public List<Project> getAllProject(){
-        List<Project> list = new LambdaQueryChainWrapper<>(this.getBaseMapper()).eq(Project::getUserId, 97).list();
+        HintManager instance = HintManager.getInstance();
+        instance.addTableShardingValue("project", 1);
+        List<Project> list = new LambdaQueryChainWrapper<>(this.getBaseMapper()).eq(Project::getId,1L).eq(Project::getUserId, 1L).list();
 //        list.forEach(Project -> {
 //            System.out.println(JSONObject.toJSONString(Project));
 //        });
+        //即时关闭 保证线程安全
+        instance.close();
         return list;
     }
 
     @Override
-    public void add(Project project) {
+    public void add(Project project1) {
         int a = 1;
-        for (int j = 1; j <= 100; j++){
-            for (int i = 1; i <= 100; i++){
+        for (int j = 1; j <= 10; j++){
+            for (int i = 1; i <= 10; i++){
+                Project project = new Project();
 //                System.out.println("项目:第"+j+"人的第"+i+"个项目");
-                a++;
                 project.setId(Long.valueOf(a));
                 project.setUserId(Long.valueOf(j));
                 project.setProjectName("项目:第"+j+"人的第"+i+"个项目");
                 projectMapper.insert(project);
+                a++;
             }
         }
     }

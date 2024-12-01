@@ -41,11 +41,11 @@
                 <version>${framework-tool-startup.verson}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.ssc.hn.dba</groupId>
-                <artifactId>sms-spring-boot-starter</artifactId>
-                <version>${sms-spring-boot-starter.verson}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.ssc.hn.dba</groupId>-->
+<!--                <artifactId>sms-spring-boot-starter</artifactId>-->
+<!--                <version>${sms-spring-boot-starter.verson}</version>-->
+<!--            </dependency>-->
 
         </dependencies>
     </dependencyManagement>

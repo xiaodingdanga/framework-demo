@@ -8,7 +8,6 @@ import org.apache.shardingsphere.sharding.api.sharding.complex.ComplexKeysShardi
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * @author xin.liu
@@ -16,7 +15,7 @@ import java.util.Properties;
  * @date 2024-11-26  10:51
  * @Version 1.0
  */
-public class OrderGenComplexTableAlgorithm implements ComplexKeysShardingAlgorithm<Comparable<?>> {
+public class ClassBasedTableComplexTableAlgorithm implements ComplexKeysShardingAlgorithm<Comparable<?>> {
     @Override
     public Collection<String> doSharding(Collection<String> availableTargetNames, ComplexKeysShardingValue<Comparable<?>> shardingValue) {
         Map<String, Collection<Comparable<?>>> columnNameAndShardingValuesMap = shardingValue.getColumnNameAndShardingValuesMap();
@@ -25,29 +24,28 @@ public class OrderGenComplexTableAlgorithm implements ComplexKeysShardingAlgorit
 
         if(MapUtils.isNotEmpty(columnNameAndShardingValuesMap)){
             // 获取用户ID
-            Collection<Comparable<?>> userIdCollection = columnNameAndShardingValuesMap.get("customer_id");
+            Collection<Comparable<?>> userIdCollection = columnNameAndShardingValuesMap.get("id");
             //用户分片
             if(CollectionUtils.isNotEmpty(userIdCollection)){
                 userIdCollection.stream().findFirst().ifPresent(comparable -> {
+                    System.out.println("自定义分片策略id:"+comparable);
                     long tableNameSuffix = (Long) comparable % 2;
-                    result.add(shardingValue.getLogicTableName() + "_" + tableNameSuffix);
+                    result.add(shardingValue.getLogicTableName()+tableNameSuffix);
                 });
             }else {
-                Collection<Comparable<?>> orderSnCollection = columnNameAndShardingValuesMap.get("order_sn");
+                Collection<Comparable<?>> orderSnCollection = columnNameAndShardingValuesMap.get("user_id");
                 orderSnCollection.stream().findFirst().ifPresent(comparable -> {
-                    String orderSn = String.valueOf(comparable);
-                    //获取用户基因
-                    String substring = orderSn.substring(Math.max(0, orderSn.length() - 6));
-                    long tableNameSuffix = Long.parseLong(substring) % 2;
-                    result.add(shardingValue.getLogicTableName() + "_" + tableNameSuffix);
+//                    String orderSn = String.valueOf(comparable);
+//                    //获取用户基因
+//                    String substring = orderSn.substring(Math.max(0, orderSn.length() - 6));
+//                    long tableNameSuffix = Long.parseLong(substring) % 2;
+//                    result.add(shardingValue.getLogicTableName() + "_" + tableNameSuffix);
+                    System.out.println("自定义分片策略user_id:"+comparable);
+                    long tableNameSuffix = (Long) comparable % 2;
+                    result.add(shardingValue.getLogicTableName()+tableNameSuffix);
                 });
             }
         }
         return result;
-    }
-
-    @Override
-    public void init(Properties properties) {
-
     }
 }
