@@ -58,8 +58,8 @@ spring:
           #消费者重试间隔次数 2s
           initial-interval: 2000
 
-#mybatis-plus:
-#  mapper-locations: classpath:com/lx/framework/tool/demo/mapper/xml/*.xml
+mybatis-plus:
+  mapper-locations: classpath:com/lx/framework/tool/demo/mapper/xml/*.xml
 logging:
   config: classpath:log4j2.xml
   #配置mybatis打印sql语句
