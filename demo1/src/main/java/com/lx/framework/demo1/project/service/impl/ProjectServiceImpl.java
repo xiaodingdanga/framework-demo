@@ -37,14 +37,14 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
     @Override
     public List<Project> getAllProject(){
-        HintManager instance = HintManager.getInstance();
-        instance.addTableShardingValue("project", 1);
-        List<Project> list = new LambdaQueryChainWrapper<>(this.getBaseMapper()).eq(Project::getId,1L).eq(Project::getUserId, 1L).list();
+//        HintManager instance = HintManager.getInstance();
+//        instance.addTableShardingValue("project", 1);
+        List<Project> list = new LambdaQueryChainWrapper<>(this.getBaseMapper()).eq(Project::getId,12L).eq(Project::getUserId, 2L).list();
 //        list.forEach(Project -> {
 //            System.out.println(JSONObject.toJSONString(Project));
 //        });
-        //即时关闭 保证线程安全
-        instance.close();
+//        //即时关闭 保证线程安全
+//        instance.close();
         return list;
     }
 

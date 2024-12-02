@@ -2,22 +2,33 @@ dataSources:
   master0:
     driverClassName: com.mysql.cj.jdbc.Driver
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
-#    jdbcUrl: jdbc:mysql://192.168.1.167:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
-    jdbcUrl: jdbc:mysql://192.168.31.168:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    jdbcUrl: jdbc:mysql://192.168.1.167:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+#    jdbcUrl: jdbc:mysql://192.168.31.168:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: 123456
   master1:
     driverClassName: com.mysql.cj.jdbc.Driver
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
-#    jdbcUrl: jdbc:mysql://192.168.1.169:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
-    jdbcUrl: jdbc:mysql://192.168.31.47:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    jdbcUrl: jdbc:mysql://localhost:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+#    jdbcUrl: jdbc:mysql://192.168.31.47:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+  slave1:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    jdbcUrl: jdbc:mysql://localhost:3307/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    #    jdbcUrl: jdbc:mysql://192.168.31.47:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: 123456
 rules:
+#  - !SINGLE
+#    tables:
+#      - "*.*"
+#    defaultDataSource: master1
   - !SHARDING
     tables:
       project:
-        actualDataNodes: master${0..1}.project${0..1}
+        actualDataNodes: master${0..1}.project${0..1},slave.project${0..1}
 #        # 单分片键
 #        databaseStrategy:
 #          standard:
@@ -34,20 +45,20 @@ rules:
             shardingColumns: id,user_id
             shardingAlgorithmName: database_class_based_inline
 
-#        # 单分片键
-#        tableStrategy:
-#          standard:
-#            shardingColumn: id
-#            shardingAlgorithmName: table_inline
+        # 单分片键
+        tableStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: table_inline
 #        # 混合分分片键
 #        tableStrategy:
 #          complex:
 #            shardingColumns: id,user_id
 #            shardingAlgorithmName: table_class_based_inline
-        # 强制分片键
-        tableStrategy:
-          hint:
-            shardingAlgorithmName: table_hint_inline
+#        # 强制分片键
+#        tableStrategy:
+#          hint:
+#            shardingAlgorithmName: table_hint_inline
         keyGenerateStrategy:
           column: id
           keyGeneratorName: snowflake
@@ -105,15 +116,16 @@ rules:
       snowflake:
         type: SNOWFLAKE
 
-#  - !READWRITE_SPLITTING
-#    dataSources:
-#      readwrite_ds:
-#        writeDataSourceName: master0
-#        readDataSourceNames:
-#          - slave
-#        loadBalancerName: random
-#    loadBalancers:
-#      random:
-#        type: RANDOM
+  - !READWRITE_SPLITTING
+    dataSources:
+      master1:
+        writeDataSourceName: master1
+        readDataSourceNames:
+          - slave1
+        transactionalReadQueryStrategy: PRIMARY
+        loadBalancerName: random
+    loadBalancers:
+      random:
+        type: RANDOM
 props:
   sql-show: true
