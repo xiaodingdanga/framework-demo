@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -99,15 +100,13 @@ public class MqController {
      * @param json
      */
     public void sendMsgToMq(String exchange, String routingKey, JSONObject json){
-
         CorrelationData correlationData = new CorrelationData();
-
-//        MessageProperties messageProperties = new MessageProperties();
+        MessageProperties messageProperties = new MessageProperties();
 //        messageProperties.setExpiration("1000"); // 设置过期时间，单位：毫秒
-
-        Message message = new Message(json.toJSONString().getBytes());
+        //设置消息持久化
+        messageProperties.setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+        Message message = new Message(json.toJSONString().getBytes(),messageProperties);
         correlationData.setReturned(new ReturnedMessage(message,1,"1",exchange,routingKey));
-
         rabbitTemplate.convertAndSend(exchange,routingKey,message,correlationData);
     }
 
