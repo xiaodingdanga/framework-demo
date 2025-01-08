@@ -41,13 +41,22 @@ public class RedisController {
     private TestMapper testMapper;
 
     @GetMapping("/set")
-    public String set() {
+    public String set(String key) {
 
 //        RedisUtil.lock()
 //        redisTemplate.opsForValue().set("key","value");
 
 
-        return  stringRedisTemplate.opsForValue().setIfAbsent("key", "123", 60l, TimeUnit.SECONDS).toString();
+        return  stringRedisTemplate.opsForValue().setIfAbsent(key, "123", 60000l, TimeUnit.SECONDS).toString();
+    }
+
+    @GetMapping("/get")
+    public String get(String key) {
+
+//        RedisUtil.lock()
+//        redisTemplate.opsForValue().set("key","value");
+        String s = stringRedisTemplate.opsForValue().get(key);
+        return s;
     }
 
     @GetMapping("/lock")

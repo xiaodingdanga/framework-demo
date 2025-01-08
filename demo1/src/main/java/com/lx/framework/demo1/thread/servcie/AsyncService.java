@@ -10,10 +10,10 @@ import java.util.concurrent.Future;
  */
 public interface AsyncService {
 
-    public void asyncOne(String param);
+    void asyncOne(String param);
 
-    public void asyncTwo();
+    void asyncTwo();
 
-    public Future<String> asyncThree();
+    Future<String> asyncThree();
 
 }

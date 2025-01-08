@@ -5,20 +5,40 @@ server:
 spring:
   application:
     name: demo1
-#  datasource:
-#    url: jdbc:mysql://localhost:3306/test?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
-#    username: root
-#    password: 123456
-#    driver-class-name: com.mysql.cj.jdbc.Driver
   datasource:
-    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
-    url: jdbc:shardingsphere:classpath:sharding.yaml
+    url: jdbc:mysql://localhost:3306/test?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#  datasource:
+#    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+#    url: jdbc:shardingsphere:classpath:sharding.yaml
   data:
     redis:
+      #单机
       host: localhost
       port: 6379
       password: 123456
       database: 0
+#      # redis哨兵配置
+#      sentinel:
+#        # 主节点名称
+#        master: mymaster
+#        nodes:
+#          - 127.0.0.1:26379
+#          - 127.0.0.1:26380
+#          - 127.0.0.1:26381
+      # 集群的部署方式
+#      cluster:
+#        nodes:
+#          - 127.0.0.1:6380
+#          - 127.0.0.1:6381
+#          - 127.0.0.1:6382
+#          - 127.0.0.1:6383
+#          - 127.0.0.1:6384
+#          - 127.0.0.1:6385
+#        # #最大重定向次数（由于集群中数据存储在多个节点,所以在访问数据时需要通过转发进行数据定位）
+#        max-redirects: 3
       # Lettuce连接池
       lettuce:
         pool:
@@ -30,6 +50,13 @@ spring:
           max-active: 100
           # 连接分配应该阻塞的最大时间
           max-wait: 2000
+        read-mode: replica
+        #集群拓扑刷新配置
+#        cluster:
+#          refresh:
+#            period: 10s
+#            adaptive: true
+
   # 配置rabbitmq
   rabbitmq:
     # 主机ip，修改成实际rabbitmq配置
@@ -70,6 +97,7 @@ logging:
   #配置mybatis打印sql语句
   level:
     com.lx.framework.demo1.user.mapper: debug
+    io.lettuce.core: DEBUG
 dynamic:
   datasource:
     enabled: false

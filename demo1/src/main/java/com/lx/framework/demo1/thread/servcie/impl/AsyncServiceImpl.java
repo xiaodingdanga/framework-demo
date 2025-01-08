@@ -17,13 +17,13 @@ import java.util.concurrent.Future;
  */
 @Service
 public class AsyncServiceImpl implements AsyncService {
-    @Async()
+    @Async
     @Override
     public void asyncOne(String param) {
         System.out.println(">>>>>>>>>>>>>>>>>>asyncOneThread: " + Thread.currentThread().getName());
         try {
-            Thread.sleep(3000);
-            int i = 1/0;
+            Thread.sleep(500);
+//            int i = 1/0;
         } catch (Exception e) {
 //            e.printStackTrace();
             //todo 异常信息记录 用于后续处理异常线程数据  也可以在异常信息过滤其中处理
