@@ -11,6 +11,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -42,8 +44,17 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void add(UserInfo userInfo) {
         userInfoMapper.insert(userInfo);
+
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NESTED)
+    public void add1(UserInfo userInfo) {
+        userInfoMapper.insert(userInfo);
+        int i = 1/0;
     }
 
     @Override

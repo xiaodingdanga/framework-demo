@@ -1,6 +1,8 @@
 package com.lx.framework.demo1.user1.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import com.lx.framework.demo1.user.entity.UserInfo;
+import com.lx.framework.demo1.user.servcie.UserInfoService;
 import com.lx.framework.demo1.user1.entity.User;
 import com.lx.framework.demo1.user1.mapper.UserMapper;
 import com.lx.framework.demo1.user1.service.UserService;
@@ -11,6 +13,8 @@ import org.assertj.core.util.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.Arrays;
@@ -29,26 +33,38 @@ import java.util.concurrent.Executors;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @Autowired
-    UserMapper userMapper;
+    private UserInfoService userInfoService;
 
     @Override
     public User getUser(Integer id){
-        return userMapper.selectById(id);
+        return this.getBaseMapper().selectById(id);
     }
 
     @Override
     public List<User> getAllUser(){
-        return userMapper.selectList(null);
+        return this.getBaseMapper().selectList(null);
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void add(User user) {
-        userMapper.insert(user);
+        this.getBaseMapper().insert(user);
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserId(1L);
+        userInfo.setUserName("test");
+        userInfo.setPlatformCode("test");
+        userInfoService.add(userInfo);
+
+//        UserInfo userInfo1 = new UserInfo();
+//        userInfo1.setUserId(2L);
+//        userInfo1.setUserName("test");
+//        userInfo1.setPlatformCode("test");
+//        userInfoService.add1(userInfo1);
     }
 
     @Override
     public int modify(User user) {
-        return  userMapper.updateById(user);
+        return  this.getBaseMapper().updateById(user);
     }
 
     @Override
@@ -56,7 +72,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(StringUtils.isNotEmpty(ids)){
             String[] array = ids.split(",");
             if (!CollectionUtils.isEmpty(Arrays.asList(array))) {
-                userMapper.deleteBatchIds(Arrays.asList(array));
+                this.getBaseMapper().deleteBatchIds(Arrays.asList(array));
             }
         }
     }

@@ -2,10 +2,15 @@ package com.lx.framework.demo1.user1.controller;
 
 import com.lx.framework.demo1.user1.entity.User;
 import com.lx.framework.demo1.user1.service.UserService;
+import com.lx.framework.tool.startup.handler.customException.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.constraints.NotBlank;
+
+import java.io.IOException;
 import java.util.List;
 /**
 * @author xin.liu
@@ -26,14 +31,27 @@ public class UserController {
     }
 
     @GetMapping("/listAll")
+//    @Transactional(readOnly = true)
+    @Transactional(timeout = 2)
     public List<User> getAllUser(){
         List<User> userList = userService.getAllUser();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new BusinessException();
+        }
+        User user = new User();
+        user.setName("haha");
+        user.setSex(1);
+        userService.add(user);
+
         return userList;
     }
 
     @PostMapping("/add")
-    public Object add(@Validated @RequestBody User user) {
-        userService.add( user);
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Object add(@Validated @RequestBody User user) throws IOException {
+        userService.add(user);
         return null;
     }
 

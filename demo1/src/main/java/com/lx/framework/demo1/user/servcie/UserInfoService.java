@@ -32,6 +32,8 @@ public interface UserInfoService extends IService<UserInfo> {
     */
     void add(UserInfo userInfo);
 
+    void add1(UserInfo userInfo);
+
     /**
     * UserInfo
     * @param userInfo
