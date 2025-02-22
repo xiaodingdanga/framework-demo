@@ -2,6 +2,7 @@ package com.lx.framework;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -12,8 +13,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
  * @Version 1.0
  */
 @EnableAsync
-//@EnableFeignClients
+@EnableFeignClients
 @SpringBootApplication
+@EnableDiscoveryClient
 public class Demo2Application {
     public static void main(String[] args) {
         SpringApplication.run(Demo2Application.class,args);

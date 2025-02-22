@@ -1,23 +1,31 @@
 package com.lx.framework.demo1.user1.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lx.framework.demo1.fegin.entity.SysUserEntity;
+import com.lx.framework.demo1.fegin.servcie.UserFeignClient;
 import com.lx.framework.demo1.user.entity.UserInfo;
 import com.lx.framework.demo1.user.servcie.UserInfoService;
+import com.lx.framework.demo1.user.servcie.UserInfoTccService;
 import com.lx.framework.demo1.user1.entity.User;
 import com.lx.framework.demo1.user1.mapper.UserMapper;
 import com.lx.framework.demo1.user1.service.UserService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import feign.FeignException;
+import io.seata.core.context.RootContext;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.assertj.core.util.Lists;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import java.util.List;
+
+import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,6 +42,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @Resource
+    private UserFeignClient userFeignClient;
+
+    @Autowired
+    private UserInfoTccService userInfoTccService;
+
 
     @Override
     public User getUser(Integer id){
@@ -128,5 +143,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             UserList.add(User);
         }
         return UserList;
+    }
+
+    @Override
+    @GlobalTransactional
+    public void tcc() throws InterruptedException {
+        System.out.println("开始事物："+ RootContext.getXID());
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserId(1L);
+        userInfo.setUserName("test");
+        userInfo.setPlatformCode("test");
+        try {
+            UserInfo userInfo1 = userInfoTccService.prepareSaveOrder(userInfo, 1L);
+        }catch (Exception e){
+            throw new RuntimeException("模拟异常1");
+        }
+        SysUserEntity sysUserEntity = new SysUserEntity();
+        sysUserEntity.setId("044d1a8a68084e979dccddc812b03200");
+        Boolean b = userFeignClient.reduct1();
+        if (!b){
+            throw new RuntimeException("模拟异常2");
+        }
+//        Thread.sleep(10000);
     }
 }

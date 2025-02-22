@@ -2,6 +2,11 @@ package com.lx.framework.demo1.user.servcie;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lx.framework.demo1.user.entity.UserInfo;
+import com.lx.framework.demo1.user1.entity.User;
+import io.seata.rm.tcc.api.BusinessActionContext;
+import io.seata.rm.tcc.api.BusinessActionContextParameter;
+import io.seata.rm.tcc.api.LocalTCC;
+import io.seata.rm.tcc.api.TwoPhaseBusinessAction;
 
 import java.util.List;
 
@@ -49,6 +54,9 @@ public interface UserInfoService extends IService<UserInfo> {
     void remove(String ids);
 
     void insert1();
+
+    void test() throws InterruptedException;
+
 }
 
 

@@ -1,13 +1,15 @@
 package com.lx.framework.demo1.user1.service;
 
-import com.lx.framework.demo1.user1.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lx.framework.demo1.user1.entity.User;
+
 import java.util.List;
 
 /**
 * @author xin.liu
 * @since 2024-11-18
 */
+
 public interface UserService extends IService<User> {
 
     /**
@@ -48,6 +50,8 @@ public interface UserService extends IService<User> {
     void saveUserWithBatch();
 
     void saveUserWithThread();
+
+    void tcc() throws InterruptedException;
 }
 
 

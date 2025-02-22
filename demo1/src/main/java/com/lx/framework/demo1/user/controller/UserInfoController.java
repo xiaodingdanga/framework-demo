@@ -1,13 +1,18 @@
 package com.lx.framework.demo1.user.controller;
 
+import com.lx.framework.demo1.fegin.entity.SysUserEntity;
+import com.lx.framework.demo1.fegin.servcie.UserFeignClient;
 import com.lx.framework.demo1.user.entity.UserInfo;
 import com.lx.framework.demo1.user.pojo.vo.DemoVo;
 import com.lx.framework.demo1.user.servcie.UserInfoService;
+import feign.FeignException;
+import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +30,36 @@ public class UserInfoController {
     @Autowired
     private UserInfoService userInfoService;
 
+    @Resource
+    private UserFeignClient userFeignClient;
+
     public ConcurrentHashMap<Long,UserInfo> userInfoConcurrentHashMap = new ConcurrentHashMap<>();
+
+    @GetMapping(value = "/AT")
+    @GlobalTransactional
+    public UserInfo AT() throws InterruptedException {
+        UserInfo userInfo = new UserInfo();
+        //第一个分支事物
+        try{
+            userInfoService.test();
+        } catch (FeignException e) {
+            // 记录日志并处理异常
+            System.out.println("进入异常1");
+            throw new RuntimeException("Remote service call failed", e);
+        }
+        //第二个分支事物
+        SysUserEntity sysUserEntity = new SysUserEntity();
+        sysUserEntity.setId("044d1a8a68084e979dccddc812b03200");
+        userFeignClient.reduct(sysUserEntity);
+//        if (null == reduct){
+//            // 记录日志并处理异常
+//            System.out.println("进入异常2");
+//            throw new RuntimeException("Remote service call failed");
+//        }
+        return userInfo;
+    }
+
+
 
     @GetMapping("/selectOne")
     public UserInfo getUserInfo(@RequestParam("id") Integer id){

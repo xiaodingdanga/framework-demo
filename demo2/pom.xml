@@ -22,11 +22,22 @@
         <dependency>
             <groupId>com.lx.framework</groupId>
             <artifactId>framework-tool-startup</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 <!--        <dependency>-->
 <!--            <groupId>com.ssc.hn.dba</groupId>-->
 <!--            <artifactId>sms-spring-boot-starter</artifactId>-->
 <!--        </dependency>-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+            <version>2023.0.1.2</version>
+        </dependency>
     </dependencies>
 </project>

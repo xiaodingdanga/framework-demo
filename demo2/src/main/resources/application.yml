@@ -1,57 +1,57 @@
-server:
-  port: 8081
-  servlet:
-    context-path: /
-spring:
-  application:
-    name: demo2
-  datasource:
-    url: jdbc:mysql://localhost:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-#  data:
-#    redis:
-#      host: localhost
-#      port: 6379
-#      password: 123456
-#      database: 0
-#  # 配置rabbitmq
-#  rabbitmq:
-#    # 主机ip，修改成实际rabbitmq配置
-#    host: 127.0.0.1
-#    # 端口，修改成实际rabbitmq配置
-#    port: 5672
-#    # 用户名，修改成实际rabbitmq配置
-#    username: guest
-#    # 用户密码，修改成实际rabbitmq配置
-#    password: guest
-#    # 虚拟host可以不设置，默认配置写virtual-host: /
-#    virtual-host: /
-#    # 开启confirm模式，确认消息已发送到交换机
-#    publisher-confirm-type: correlated
-#    # 以开启Return模式，确认消息已发送到队列
-#    publisher-returns: true
-##    # 如果消息没有送达queue 默认为false直接丢弃失败数据，true将失败消息发送给回调函数
-##    template:
-##      mandatory: true
-#    # 设置消费端手动ack
-#    listener:
-#      simple:
-#        acknowledge-mode: manual
-#        retry:
-#          # 开启消息重发机制
-#          enabled: true
-#          # 重试次数3
-#          max-attempts: 3
-#          #消费者重试间隔次数 2s
-#          initial-interval: 2000
-
-#mybatis-plus:
-#  mapper-locations: classpath:com/lx/framework/tool/demo/mapper/xml/*.xml
-#logging:
-#  config: classpath:log4j2.xml
-#dynamic:
+#server:
+#  port: 8081
+#  servlet:
+#    context-path: /
+#spring:
+#  application:
+#    name: demo2
 #  datasource:
-#    enabled: false
-
+#    url: jdbc:mysql://localhost:3306/wallet_account_dev?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+#    username: root
+#    password: 123456
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+##  data:
+##    redis:
+##      host: localhost
+##      port: 6379
+##      password: 123456
+##      database: 0
+##  # 配置rabbitmq
+##  rabbitmq:
+##    # 主机ip，修改成实际rabbitmq配置
+##    host: 127.0.0.1
+##    # 端口，修改成实际rabbitmq配置
+##    port: 5672
+##    # 用户名，修改成实际rabbitmq配置
+##    username: guest
+##    # 用户密码，修改成实际rabbitmq配置
+##    password: guest
+##    # 虚拟host可以不设置，默认配置写virtual-host: /
+##    virtual-host: /
+##    # 开启confirm模式，确认消息已发送到交换机
+##    publisher-confirm-type: correlated
+##    # 以开启Return模式，确认消息已发送到队列
+##    publisher-returns: true
+###    # 如果消息没有送达queue 默认为false直接丢弃失败数据，true将失败消息发送给回调函数
+###    template:
+###      mandatory: true
+##    # 设置消费端手动ack
+##    listener:
+##      simple:
+##        acknowledge-mode: manual
+##        retry:
+##          # 开启消息重发机制
+##          enabled: true
+##          # 重试次数3
+##          max-attempts: 3
+##          #消费者重试间隔次数 2s
+##          initial-interval: 2000
+#
+##mybatis-plus:
+##  mapper-locations: classpath:com/lx/framework/tool/demo/mapper/xml/*.xml
+##logging:
+##  config: classpath:log4j2.xml
+##dynamic:
+##  datasource:
+##    enabled: false
+#

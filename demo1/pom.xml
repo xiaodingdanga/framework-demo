@@ -25,6 +25,12 @@
         <dependency>
             <groupId>com.lx.framework</groupId>
             <artifactId>framework-tool-startup</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 <!--        <dependency>-->
@@ -48,6 +54,7 @@
             <artifactId>shardingsphere-jdbc</artifactId>
             <version>5.5.0</version>
             <exclusions>
+
                 <exclusion>
                     <groupId>org.apache.shardingsphere</groupId>
                     <artifactId>shardingsphere-test-util</artifactId>
@@ -58,6 +65,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+            <version>2023.0.1.2</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

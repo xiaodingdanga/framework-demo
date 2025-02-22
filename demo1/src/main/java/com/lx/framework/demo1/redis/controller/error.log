@@ -1,0 +1,19 @@
+[010988] 27 Dec 15:28:56.319 * Replica 127.0.0.1:6387 asks for synchronization
+[010988] 27 Dec 15:28:56.319 * Partial resynchronization not accepted: Replication ID mismatch (Replica asked for 'ccb876d240c6e3d21767fb50bde6d9ed38e9cd5f', my replication IDs are 'ac7b21d2a31ac73d5232adab4744487934e6b465' and '0000000000000000000000000000000000000000')
+[010988] 27 Dec 15:28:56.319 * Replication backlog created, my new replication IDs are 'e222f92a7640b45b82db219c370be9329fbd01c5' and '0000000000000000000000000000000000000000'
+[010988] 27 Dec 15:28:56.320 * Delay next BGSAVE for diskless SYNC
+[010988] 27 Dec 15:29:01.511 * Starting BGSAVE for SYNC with target: replicas sockets
+[010988] 27 Dec 15:29:01.532 * Background RDB transfer started by pid 1184
+[001184] 27 Dec 15:29:01.559 #
+*** FATAL CONFIG FILE ERROR ***
+
+[001184] 27 Dec 15:29:01.560 # Reading the configuration file, at line 2
+
+[001184] 27 Dec 15:29:01.560 # >>> 'qfork "388" "10988"'
+
+[001184] 27 Dec 15:29:01.561 # Bad directive or wrong number of arguments
+
+[010988] 27 Dec 15:29:01.636 # fork operation failed
+[010988] 27 Dec 15:29:01.647 # Background transfer terminated by signal 1
+[010988] 27 Dec 15:29:01.647 # SYNC failed. BGSAVE child returned an error
+[010988] 27 Dec 15:29:01.647 * Connection with replica 127.0.0.1:6387 lost.

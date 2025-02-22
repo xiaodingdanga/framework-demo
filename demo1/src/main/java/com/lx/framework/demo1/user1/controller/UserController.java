@@ -1,5 +1,7 @@
 package com.lx.framework.demo1.user1.controller;
 
+import com.lx.framework.demo1.user.entity.UserInfo;
+import com.lx.framework.demo1.user.servcie.UserInfoTccService;
 import com.lx.framework.demo1.user1.entity.User;
 import com.lx.framework.demo1.user1.service.UserService;
 import com.lx.framework.tool.startup.handler.customException.BusinessException;
@@ -23,6 +25,13 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping(value = "/tcc")
+    public UserInfo tcc() throws InterruptedException {
+        UserInfo userInfo = new UserInfo();
+        userService.tcc();
+        return userInfo;
+    }
 
     @GetMapping("/selectOne")
     public User getUser(@RequestParam("id") Integer id){
