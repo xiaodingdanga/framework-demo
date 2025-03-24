@@ -27,11 +27,7 @@ public class StockController {
 
     @PostMapping(value = "/reduct")
     public SysUserEntity reduct(@RequestBody SysUserEntity sysUserEntity) {
-        try {
-            sysUserService.reduct(sysUserEntity.getId());
-        }catch(Exception e){
-            return null;
-        }
+        sysUserService.reduct(sysUserEntity.getId());
         return  new SysUserEntity();
     }
 

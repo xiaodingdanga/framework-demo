@@ -119,12 +119,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public void test() throws InterruptedException {
         System.out.println("开始事物："+ RootContext.getXID());
 
-        new LambdaUpdateChainWrapper<>(userInfoMapper).eq(UserInfo::getUserId, 1).set(UserInfo::getUserName,"perpare1").update();
-
+//        new LambdaUpdateChainWrapper<>(userInfoMapper).eq(UserInfo::getUserId, 1).set(UserInfo::getUserName,"perpare1").update();
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserName("张三");
+        userInfoMapper.insert(userInfo);
 //        Thread.sleep(10000);
         //异常
 //        int a = 1/0;

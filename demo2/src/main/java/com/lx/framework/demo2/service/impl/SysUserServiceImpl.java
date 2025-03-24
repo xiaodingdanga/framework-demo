@@ -35,7 +35,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUserEntity
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public void reduct(String id) {
         System.out.println("更新sort数据:" + RootContext.getXID());
         SysUserEntity sysUserEntity = new SysUserEntity();

@@ -8,11 +8,14 @@ import com.lx.framework.tool.startup.utils.RedisLockUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisListCommands;
+import org.springframework.data.redis.core.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -79,5 +82,86 @@ public class RedisController {
         JSONObject jsonObject1 = JSONObject.parseObject(str);
         return jsonObject1;
     }
+
+    @GetMapping("/api")
+    public String api() {
+        //string
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+//        valueOperations.set("int", 1);
+//        valueOperations.set("string", "string");
+//        ArrayList<String> strings = new ArrayList<>();
+//        strings.add("string");
+//        strings.add("int");
+        //批量获取值
+//        List list = valueOperations.multiGet(strings);
+        //从指定位置获取值
+//        String s = valueOperations.get("string", 0, 1);
+        //批量设置值
+//        HashMap<String, String> stringStringHashMap = new HashMap<>();
+//        stringStringHashMap.put("ma", "ma");
+//        stringStringHashMap.put("mb", "mb");
+//        valueOperations.multiSet(stringStringHashMap);
+        //在指定的偏移量位置设置字符串值的一部分
+//        valueOperations.set("string", "string",2);
+        //在末尾追加字符串
+//        valueOperations.append("string","1");
+        //如果键存在则返回false，否则返回true
+//        Boolean b = valueOperations.setIfAbsent("string1", "string");
+        //如果键存在并且成功设置了新值，则返回 true；如果键不存在，则返回 false
+//        Boolean b = valueOperations.setIfPresent("string2", "string23423");
+        //位操作
+//        Boolean b = valueOperations.setBit("bit", 1, true);
+//        System.out.println("-----------------:"+b);
+//        Boolean bit = valueOperations.getBit("bit", 0);
+//        System.out.println("-----------------:"+bit);
+        //减一
+//        valueOperations.decrement("int");
+        //加一
+//        valueOperations.increment("int");
+//
+//        Long string = valueOperations.size("string");
+//        System.out.println(string);
+
+        //list
+        ListOperations listOperations = redisTemplate.opsForList();
+
+//        listOperations.leftPush("list", "string7");
+//        listOperations.set("list", 1, "string1");
+//        Object list = listOperations.index("list", 1);
+//        System.out.println(list.toString());
+//        Object list = listOperations.leftPop("list");
+//        System.out.println(list.toString());
+//        Object list1 = listOperations.rightPop("list");
+//        System.out.println(list1.toString());
+//        Long l = listOperations.indexOf("list", "string");
+//        System.out.println(l);
+//        List list = listOperations.range("list", 0, 3);
+//        System.out.println(list);
+//        listOperations.rightPopAndLeftPush("list", "list1");
+//        listOperations.remove("list", 1, "string7");
+//        listOperations.move( "list", RedisListCo mmands.Direction.first(), "list1", RedisListCommands.Direction.last());
+
+        //set
+        SetOperations setOperations = redisTemplate.opsForSet();
+//        setOperations.add("set", "string1", "string2", "string3", "string4", "string5", "string6", "string7");
+//        setOperations.add("set1", "string2");
+//        Set difference = setOperations.difference("set", "set1");
+//        System.out.println(difference);
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("set");
+        strings.add("set1");
+        Set difference1 = setOperations.difference(strings);
+        System.out.println(difference1);
+
+
+//        //zset
+//        ZSetOperations zSetOperations = redisTemplate.opsForZSet();
+
+//        //hash
+//        HashOperations hashOperations = redisTemplate.opsForHash();
+
+        return "success";
+    }
+
 
 }

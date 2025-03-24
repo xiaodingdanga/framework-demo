@@ -7,6 +7,7 @@ import com.lx.framework.demo1.user.pojo.vo.DemoVo;
 import com.lx.framework.demo1.user.servcie.UserInfoService;
 import feign.FeignException;
 import io.seata.spring.annotation.GlobalTransactional;
+import io.seata.tm.api.transaction.Propagation;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -40,17 +41,23 @@ public class UserInfoController {
     public UserInfo AT() throws InterruptedException {
         UserInfo userInfo = new UserInfo();
         //第一个分支事物
-        try{
+//        try{
             userInfoService.test();
-        } catch (FeignException e) {
-            // 记录日志并处理异常
-            System.out.println("进入异常1");
-            throw new RuntimeException("Remote service call failed", e);
-        }
+//        } catch (FeignException e) {
+//            // 记录日志并处理异常
+//            System.out.println("进入异常1");
+//            throw new RuntimeException("Remote service call failed", e);
+//        }
         //第二个分支事物
         SysUserEntity sysUserEntity = new SysUserEntity();
-        sysUserEntity.setId("044d1a8a68084e979dccddc812b03200");
-        userFeignClient.reduct(sysUserEntity);
+        sysUserEntity.setId("044d1a8a68084e979dccddc812b03201");
+//        try {
+            SysUserEntity reduct = userFeignClient.reduct(sysUserEntity);
+//        }catch (Exception e) {
+//            // 记录日志并处理异常
+//            System.out.println("进入异常2");
+//            throw new RuntimeException("Remote service call failed", e);
+//        }
 //        if (null == reduct){
 //            // 记录日志并处理异常
 //            System.out.println("进入异常2");

@@ -27,7 +27,7 @@ public class AESEncryptService implements EncryptService {
 
     @Override
     public String encrypt(String parameter) {
-        System.out.println("AES算法加密");
+//        System.out.println("AES算法加密");
         return aes.encryptHex(parameter);
     }
 
