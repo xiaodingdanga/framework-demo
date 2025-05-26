@@ -6,13 +6,9 @@ import com.lx.framework.demo1.fegin.entity.SysUserEntity;
 import com.lx.framework.demo1.fegin.servcie.UserFeignClient;
 import com.lx.framework.demo1.user.entity.UserInfo;
 import com.lx.framework.demo1.user.servcie.UserInfoService;
-import com.lx.framework.demo1.user.servcie.UserInfoTccService;
 import com.lx.framework.demo1.user1.entity.User;
 import com.lx.framework.demo1.user1.mapper.UserMapper;
 import com.lx.framework.demo1.user1.service.UserService;
-import feign.FeignException;
-import io.seata.core.context.RootContext;
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -23,7 +19,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -43,11 +38,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private UserInfoService userInfoService;
 
-    @Resource
-    private UserFeignClient userFeignClient;
-
     @Autowired
-    private UserInfoTccService userInfoTccService;
+    private UserFeignClient userFeignClient;
+//
+//    @Autowired
+//    private UserInfoTccService userInfoTccService;
 
 
     @Override
@@ -112,6 +107,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         int totalTasks = dataSize % step == 0 ? dataSize % step : (dataSize / step + 1);
         //批量插入方法
         CountDownLatch countDownLatch = new CountDownLatch(totalTasks);
+
+//        List<Future<Boolean>> futures = new ArrayList<>();
+
         for (int j = 0; j < dataSize; j = j + step) {
             final int start = j;
             final int perCount = (dataSize - start) < step ? (dataSize - start) : step;
@@ -146,15 +144,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    @GlobalTransactional
+//    @GlobalTransactional
     public void tcc() throws InterruptedException {
-        System.out.println("开始事物："+ RootContext.getXID());
+//        System.out.println("开始事物："+ RootContext.getXID());
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(1L);
         userInfo.setUserName("test");
         userInfo.setPlatformCode("test");
         try {
-            UserInfo userInfo1 = userInfoTccService.prepareSaveOrder(userInfo, 1L);
+//            UserInfo userInfo1 = userInfoTccService.prepareSaveOrder(userInfo, 1L);
         }catch (Exception e){
             throw new RuntimeException("模拟异常1");
         }

@@ -16,4 +16,14 @@ public interface AsyncService {
 
     Future<String> asyncThree();
 
+    void synchronizedBuy();
+
+    void buy();
+
+    void reentrantLockBuy();
+
+    public String getFromCache(String key);
+
+    public void updateCache(String key, String value);
+
 }

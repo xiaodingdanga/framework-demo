@@ -1,22 +1,23 @@
-# Spring
-spring:
-  application:
-    name: demo1
-  cloud:
-    nacos:
-      discovery:
-        # 服务注册地址
-        server-addr: 192.168.31.168:8848
-        username: nacos
-        password: nacos
-      config:
-        # 配置中心地址
-        server-addr: 192.168.31.168:8848
-        username: nacos
-        password: nacos
-        # 配置文件格式
-        file-extension: yml
-        # 配置组，需要与nacos上一致，否则找不到
-        group: DEFAULT_GROUP
-        #命名空间默认是public，无需填。在nacos新建命名空间时，需要填写命名空间id
-        namespace:
+## Spring
+#spring:
+#  application:
+#    name: demo1
+#  cloud:
+#    nacos:
+#      discovery:
+#        # 服务注册地址
+#        server-addr: 192.168.31.168:8848
+#        username: nacos
+#        password: nacos
+#      config:
+#        # 配置中心地址
+#        server-addr: 192.168.31.168:8848
+#        username: nacos
+#        password: nacos
+#        # 配置文件格式
+#        file-extension: yml
+#        # 配置组，需要与nacos上一致，否则找不到
+#        group: DEFAULT_GROUP
+#        #命名空间默认是public，无需填。在nacos新建命名空间时，需要填写命名空间id
+#        namespace:
+1

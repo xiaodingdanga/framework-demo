@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -44,16 +45,17 @@ public class RabbitmqReceiver {
     /**
      * 消费者监听，绑定交换机、队列、路由键
      */
-    @RabbitListener(bindings = {
-            @QueueBinding(
-                    exchange = @Exchange(value = "directExchange"),
-                    value = @Queue(value = "directQueue"),
-                    key = "directRouting"
-            )
-    })
-    public void receiveDirectMsg(JSON message) {
+    @RabbitListener(bindings = {@QueueBinding(exchange = @Exchange(value = "directExchange"),value = @Queue(value = "directQueue"),key = "directRouting")},containerFactory = "singleMessageListenerContainerFactory")
+    public void receiveDirectMsg(JSONObject json, Message message, Channel channel) throws IOException {
+        // 模拟处理时间
+        try {
+            Thread.sleep(2000); // 模拟处理消息需要2秒
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(LocalDateTime.now());
         //接收消息message
-        log.info("Direct模式消费者收到消息: " + message.toString());
+        log.info("Direct模式消费者收到消息: " + message);
     }
 
     /**
@@ -70,43 +72,45 @@ public class RabbitmqReceiver {
         log.info("【" + messageId + "】-正在处理的消息");
         //查看消息是否已消费
 
-        if (null != redisTemplate.opsForValue().get("rabbit-mq-"+messageId)) {
-            //手动确认消息已消费
-            channel.basicAck(deliveryTag, false);
-            log.info("【" + messageId + "】消息出现重复消费");
-            return;
-        }
-
-        // 重试次数
-        int retryCount = 0;
-        boolean success = false;
-
-        // 消费失败并且重试次数<=重试上限次数
-        while (!success && retryCount < MAX_RETRIES) {
-            retryCount++;
-            // 执行业务操作
-            success = true;
-            Thread.sleep(5000);
-            // 如果失败则重试
-            if (!success) {
-                String errorTip = "第" + retryCount + "次消费失败" +
-                        ((retryCount < 3) ? "," + RETRY_INTERVAL + "s后重试" : ",进入死信队列");
-                log.error(errorTip);
-                Thread.sleep(RETRY_INTERVAL * 1000);
-            }
-        }
-
-        if (success) {
-            //messageId存入redis
-            redisTemplate.opsForValue().set("rabbit-mq-"+messageId, messageId,24, TimeUnit.HOURS);
-            //确认消息消费成功
-            channel.basicAck(deliveryTag, false);
-            log.info("消费成功");
-        } else {
-            // 重试多次之后仍失败，进入死信队列
-            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
-            log.info("重试多   次之后仍失败，进入死信队列");
-        }
+//        if (null != redisTemplate.opsForValue().get("rabbit-mq-"+messageId)) {
+//            //手动确认消息已消费
+//            channel.basicAck(deliveryTag, false);
+//            log.info("【" + messageId + "】消息出现重复消费");
+//            return;
+//        }
+//
+//        // 重试次数
+//        int retryCount = 0;
+//        boolean success = false;
+//
+//        // 消费失败并且重试次数<=重试上限次数
+//        while (!success && retryCount < MAX_RETRIES) {
+//            retryCount++;
+//            // 执行业务操作
+//            success = true;
+//            Thread.sleep(5000);
+//            // 如果失败则重试
+//            if (!success) {
+//                String errorTip = "第" + retryCount + "次消费失败" +
+//                        ((retryCount < 3) ? "," + RETRY_INTERVAL + "s后重试" : ",进入死信队列");
+//                log.error(errorTip);
+//                Thread.sleep(RETRY_INTERVAL * 1000);
+//            }
+//        }
+//
+//        if (success) {
+//            //messageId存入redis
+//            redisTemplate.opsForValue().set("rabbit-mq-"+messageId, messageId,24, TimeUnit.HOURS);
+//            //确认消息消费成功
+//            channel.basicAck(deliveryTag, false);
+//            log.info("消费成功");
+//        } else {
+//            // 重试多次之后仍失败，进入死信队列
+//            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+//            log.info("重试多次之后仍失败，进入死信队列");
+//        }
+        channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+        log.info("重试多次之后仍失败，进入死信队列");
     }
 
     /**
@@ -135,4 +139,5 @@ public class RabbitmqReceiver {
         //接收消息message
         log.info("Fanout模式(fanoutSecondQueue)消费者收到消息: " + message.toString());
     }
+
 }

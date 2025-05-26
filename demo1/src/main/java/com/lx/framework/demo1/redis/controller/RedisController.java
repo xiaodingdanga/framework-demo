@@ -1,21 +1,23 @@
 package com.lx.framework.demo1.redis.controller;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.lx.framework.demo1.dict.entity.DictValue;
+import com.lx.framework.demo1.dict.service.IDictValueService;
 import com.lx.framework.demo1.redis.entity.Test;
 import com.lx.framework.demo1.redis.mapper.TestMapper;
+import com.lx.framework.demo1.utils.SnowflakeUtils;
 import com.lx.framework.tool.startup.utils.Lock;
 import com.lx.framework.tool.startup.utils.RedisLockUtil;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.connection.RedisListCommands;
 import org.springframework.data.redis.core.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping(value = "/redis")
 public class RedisController {
     @Autowired
+    @Qualifier("redisTemplate")
     private RedisTemplate redisTemplate;
 
     @Autowired
@@ -43,6 +46,9 @@ public class RedisController {
     @Autowired
     private TestMapper testMapper;
 
+    @Resource
+    private SnowflakeUtils snowflakeUtils;
+
     @GetMapping("/set")
     public String set(String key) {
 
@@ -50,7 +56,7 @@ public class RedisController {
 //        redisTemplate.opsForValue().set("key","value");
 
 
-        return  stringRedisTemplate.opsForValue().setIfAbsent(key, "123", 60000l, TimeUnit.SECONDS).toString();
+        return  redisTemplate.opsForValue().setIfAbsent(key, "123", 60000l, TimeUnit.SECONDS).toString();
     }
 
     @GetMapping("/get")
@@ -163,5 +169,201 @@ public class RedisController {
         return "success";
     }
 
+    @Autowired
+    private IDictValueService iDictValueService;
+    /*
+     * @description TODO
+     * @param type 1-6
+     * @param method 0-不走redis 1-加密 2-分批 3-原始数据存入
+     * @return: java.lang.String
+     * @author xin.liu
+     * @date 2025/5/13 10:35
+     */
+    @GetMapping("/testCache")
+    public String test1(@RequestParam("type") Integer type, @RequestParam("method") Integer method) {
+        //计算并打印接口耗时
+        long startTime = System.currentTimeMillis();
+        Map<String, DictValue> dictMapByType = new HashMap<>();
+        if (method == 0){
+            dictMapByType = iDictValueService.getDictMapByType(type);
+        }else if(method ==1){
+            dictMapByType = iDictValueService.getDictMapByTypeV1(type);
+        }else if (method ==2){
+            dictMapByType = iDictValueService.getDictMapByTypeV2(type);
+        }else if (method ==3){
+            dictMapByType = iDictValueService.getDictMapByTypeV3(type);
+        }
+//        for (Map.Entry<String, DictValue> entry : dictMapByType.entrySet()) {
+//            System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+//        }
+        System.out.println("字典map数量：" + dictMapByType.size());
+        System.out.println("接口耗时：" + (System.currentTimeMillis() - startTime) + "ms");
+        return "success";
+    }
+
+    @GetMapping("/bitmap")
+    public void bitmap() {
+        stringRedisTemplate.opsForValue().setBit("bitmap", 1000, true);
+    }
+
+    @GetMapping("/checkin1")
+    public String checkIn1(@RequestParam("userId") Long userId, @RequestParam("day") int day) {
+        checkIn(userId, day);
+        return "签到成功";
+    }
+
+    @GetMapping("/checkin/count")
+    public String countCheckIn(@RequestParam("userId") Long userId) {
+        Long count = countCheckInDays(userId);
+        return "本月已签到：" + count + " 天";
+    }
+
+    @GetMapping("/checkin/detail")
+    public String checkInDetail(@RequestParam("userId") Long userId) {
+        return getDailyCheckIns(userId);
+    }
+
+    /**
+     * 用户在某月的某一天签到
+     * @param userId 用户ID
+     * @param day 日期 (1-31)
+     */
+    public void checkIn(Long userId, int day) {
+        String key = "user:checkin:" + userId + ":202504"; // 按月份作为key的一部分
+        stringRedisTemplate.opsForValue().setBit(key, day - 1, true); // offset从0开始
+    }
+
+    /**
+     * 查询用户在某月的某一天是否已签到
+     * @param userId 用户ID
+     * @param day 日期 (1-31)
+     * @return 是否签到
+     */
+    public boolean isCheckIn(Long userId, int day) {
+        String key = "user:checkin:" + userId + ":202504";
+        return stringRedisTemplate.opsForValue().getBit(key, day - 1);
+    }
+
+    /**
+     * 统计用户在某月的总签到天数
+     * @param userId 用户ID
+     * @return 签到天数
+     */
+    public Long countCheckInDays(Long userId) {
+        String key = "user:checkin:" + userId + ":202504";
+        return stringRedisTemplate.execute((RedisCallback<Long>) connection ->
+                connection.bitCount(key.getBytes()));
+    }
+
+    /**
+     * 获取用户在某月的每日签到情况
+     * @param userId 用户ID
+     * @return 每日签到情况数组（索引0表示第1天）
+     */
+    public String getDailyCheckIns(Long userId) {
+        String key = "user:checkin:" + userId + ":202504";
+        byte[] data = stringRedisTemplate.execute((RedisCallback<byte[]>) connection ->
+                connection.get(key.getBytes()));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("用户 ").append(userId).append("在 2025年4月 的签到情况：\n");
+
+        if (data == null) {
+            sb.append("该月无签到记录，所有日期均未签到。\n");
+            return sb.toString();
+        }
+
+        for (int i = 0; i < 31 && i < data.length * 8; i++) {
+            int byteIndex = i / 8;
+            int bitIndex = 7 - (i % 8); // 反转 bit 顺序
+            boolean isCheckIn = ((data[byteIndex] & (1 << bitIndex)) != 0);
+            sb.append("第 ").append(i + 1).append(" 天：").append(isCheckIn ? "已签到" : "未签到").append("\n");
+        }
+
+        return sb.toString();
+    }
+//====================================================================================
+
+    @GetMapping("/checkin/day")
+    public String checkInByDay(@RequestParam("userId") Long userId,
+                               @RequestParam("date") String date) {
+        checkInByDayAsKey(userId, date);
+        return "签到成功";
+    }
+    @GetMapping("/checkin/status/day")
+    public String checkInStatusByDay(@RequestParam("userId") Long userId,
+                                     @RequestParam("date") String date) {
+        boolean isCheckIn = isCheckInByDay(userId, date);
+        return isCheckIn ? "已签到" : "未签到";
+    }
+
+    @GetMapping("/checkin/count/day")
+    public String countCheckInByDay(@RequestParam("date") String date) {
+        Long count = countCheckInUsers(date);
+        return "今日签到人数：" + count;
+    }
+
+    @GetMapping("/checkin/getUser")
+    public  Set<Long> getUser(@RequestParam("date") String date) {
+        return getAllCheckInUsers(date,100l);
+    }
+
+    /**
+     * 查询用户在某一天是否签到
+     * @param userId 用户ID
+     * @param date   日期，格式为 yyyyMMdd
+     * @return 是否签到
+     */
+    public boolean isCheckInByDay(Long userId, String date) {
+        String key = "sign:" + date;
+        return stringRedisTemplate.opsForValue().getBit(key, userId);
+    }
+
+    /**
+     * 用户在某一天签到
+     * @param userId 用户ID
+     * @param date   日期，格式为 yyyyMMdd，如 20250401
+     */
+    public void checkInByDayAsKey(Long userId, String date) {
+        String key = "sign:" + date; // 按天作为 key
+        stringRedisTemplate.opsForValue().setBit(key, userId, true); // 用户ID作为offset
+    }
+
+    /**
+     * 统计某天的签到人数
+     * @param date 日期，格式为 yyyyMMdd
+     * @return 签到人数
+     */
+    public Long countCheckInUsers(String date) {
+        String key = "sign:" + date;
+        return stringRedisTemplate.execute((RedisCallback<Long>) connection ->
+                connection.bitCount(key.getBytes()));
+    }
+
+    /**
+     * 获取某天所有签到用户ID列表（根据 offset）
+     * @param date 日期
+     * @param maxUserId 最大用户ID（用于限制遍历范围）
+     * @return 签到用户ID集合
+     */
+    public Set<Long> getAllCheckInUsers(String date, long maxUserId) {
+        String key = "sign:" + date;
+        byte[] data = stringRedisTemplate.execute((RedisCallback<byte[]>) connection ->
+                connection.get(key.getBytes()));
+
+        Set<Long> signedUsers = new HashSet<>();
+        if (data == null) return signedUsers;
+
+        for (long i = 0; i <= maxUserId && i < data.length * 8; i++) {
+            int byteIndex = (int) (i / 8);
+            int bitIndex = 7 - (int) (i % 8); // 反转 bitIndex
+
+            if ((data[byteIndex] & (1 << bitIndex)) != 0) {
+                signedUsers.add(i);
+            }
+        }
+
+        return signedUsers;
+    }
 
 }

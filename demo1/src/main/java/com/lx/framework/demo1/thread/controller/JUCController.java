@@ -1,8 +1,12 @@
 package com.lx.framework.demo1.thread.controller;
 
+import com.lx.framework.demo1.thread.pojo.dto.DemoDto;
 import com.lx.framework.demo1.thread.servcie.AsyncService;
+import com.lx.framework.demo1.thread.servcie.impl.AsyncServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -87,12 +91,49 @@ public class JUCController {
                 new ThreadPoolExecutor.CallerRunsPolicy()
         );
         threadPoolExecutor.execute(() -> {
-
             System.out.println("123");
 
-
         });
-
     }
 
+    @PostMapping("/synchronizedBuy")
+    public boolean synchronizedBuy() {
+        asyncService.synchronizedBuy();
+//        AsyncServiceImpl asyncService = new AsyncServiceImpl();
+//        asyncService.synchronizedBuy();
+        return true;
+    }
+
+    @PostMapping("/buy")
+    public boolean buy() {
+        asyncService.buy();
+//        AsyncServiceImpl asyncService = new AsyncServiceImpl();
+//        asyncService.buy();
+//        AsyncServiceImpl.staticBuy();
+        return true;
+    }
+
+    @PostMapping("/reentrantLockBuy")
+    public boolean reentrantLockBuy() {
+        asyncService.reentrantLockBuy();
+//        AsyncServiceImpl asyncService = new AsyncServiceImpl();
+//        asyncService.synchronizedBuy();
+        return true;
+    }
+
+    @PostMapping("/staticBuy")
+    public boolean staticBuy() {
+        AsyncServiceImpl.staticBuy();
+        return true;
+    }
+
+    @PostMapping("/cacheMap")
+    public void cacheMap(@RequestBody  DemoDto demoDto) {
+        asyncService.updateCache(demoDto.getKey().toString(), demoDto.getKey().toString());
+    }
+
+    @PostMapping("/getFromCache")
+    public void getFromCache(@RequestBody  DemoDto demoDto) {
+        asyncService.getFromCache(demoDto.getKey().toString());
+    }
 }

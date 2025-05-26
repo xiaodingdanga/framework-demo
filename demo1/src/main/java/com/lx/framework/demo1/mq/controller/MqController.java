@@ -34,15 +34,18 @@ public class MqController {
 
     @GetMapping("/sendDirectMessage")
     public String sendDirectMessage() {
-        String messageId = String.valueOf(UUID.randomUUID());
-        String messageData = "Test message, hello world!";
-        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        JSONObject json = new JSONObject();
-        json.put("messageId", messageId);
-        json.put("messageData", messageData);
-        json.put("createTime", createTime);
+
+        for (int i = 0; i < 1; i++) {
+            String messageId = String.valueOf(UUID.randomUUID());
+            String messageData = "Test message, hello world!";
+            String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            JSONObject json = new JSONObject();
+            json.put("messageId", messageId);
+            json.put("messageData", messageData);
+            json.put("createTime", createTime);
 //        rabbitTemplate.convertAndSend("directExchange", "directRouting", json);
-        sendMsgToMq("directExchange","directRouting",json);
+            sendMsgToMq("directExchange","directRouting",json);
+        }
         return "ok";
     }
 

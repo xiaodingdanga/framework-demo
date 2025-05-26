@@ -1,34 +1,22 @@
 package com.lx.framework.demo1.user.servcie.impl;
 
-import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.IdUtil;
-import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.lx.framework.demo1.fegin.entity.SysUserEntity;
-import com.lx.framework.demo1.fegin.servcie.UserFeignClient;
 import com.lx.framework.demo1.user.entity.UserInfo;
 import com.lx.framework.demo1.user.mapper.UserInfoMapper;
 import com.lx.framework.demo1.user.servcie.UserInfoService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.lx.framework.demo1.user1.entity.User;
-import feign.FeignException;
-import io.seata.core.context.RootContext;
-import io.seata.rm.tcc.api.BusinessActionContext;
-import io.seata.spring.annotation.GlobalLock;
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 /**
 * 账户表
 *
@@ -121,7 +109,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
 //    @Transactional
     public void test() throws InterruptedException {
-        System.out.println("开始事物："+ RootContext.getXID());
+//        System.out.println("开始事物："+ RootContext.getXID());
 
 //        new LambdaUpdateChainWrapper<>(userInfoMapper).eq(UserInfo::getUserId, 1).set(UserInfo::getUserName,"perpare1").update();
         UserInfo userInfo = new UserInfo();

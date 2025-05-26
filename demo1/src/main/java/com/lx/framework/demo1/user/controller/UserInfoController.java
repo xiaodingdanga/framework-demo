@@ -5,15 +5,11 @@ import com.lx.framework.demo1.fegin.servcie.UserFeignClient;
 import com.lx.framework.demo1.user.entity.UserInfo;
 import com.lx.framework.demo1.user.pojo.vo.DemoVo;
 import com.lx.framework.demo1.user.servcie.UserInfoService;
-import feign.FeignException;
-import io.seata.spring.annotation.GlobalTransactional;
-import io.seata.tm.api.transaction.Propagation;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,13 +27,13 @@ public class UserInfoController {
     @Autowired
     private UserInfoService userInfoService;
 
-    @Resource
+    @Autowired
     private UserFeignClient userFeignClient;
 
     public ConcurrentHashMap<Long,UserInfo> userInfoConcurrentHashMap = new ConcurrentHashMap<>();
 
     @GetMapping(value = "/AT")
-    @GlobalTransactional
+//    @GlobalTransactional
     public UserInfo AT() throws InterruptedException {
         UserInfo userInfo = new UserInfo();
         //第一个分支事物
