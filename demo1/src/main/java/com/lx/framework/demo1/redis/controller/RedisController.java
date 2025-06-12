@@ -1,10 +1,12 @@
 package com.lx.framework.demo1.redis.controller;
 
+import cn.hutool.core.io.checksum.CRC16;
 import com.alibaba.fastjson2.JSONObject;
 import com.lx.framework.demo1.dict.entity.DictValue;
 import com.lx.framework.demo1.dict.service.IDictValueService;
 import com.lx.framework.demo1.redis.entity.Test;
 import com.lx.framework.demo1.redis.mapper.TestMapper;
+import com.lx.framework.demo1.redis.servcie.ShardedRedisService;
 import com.lx.framework.demo1.utils.SnowflakeUtils;
 import com.lx.framework.tool.startup.utils.Lock;
 import com.lx.framework.tool.startup.utils.RedisLockUtil;
@@ -13,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.connection.RedisListCommands;
 import org.springframework.data.redis.core.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,6 +50,9 @@ public class RedisController {
     @Resource
     private SnowflakeUtils snowflakeUtils;
 
+    @Resource
+    private ShardedRedisService shardedRedisService;
+
     @GetMapping("/set")
     public String set(String key) {
 
@@ -56,7 +60,7 @@ public class RedisController {
 //        redisTemplate.opsForValue().set("key","value");
 
 
-        return  redisTemplate.opsForValue().setIfAbsent(key, "123", 60000l, TimeUnit.SECONDS).toString();
+        return redisTemplate.opsForValue().setIfAbsent(key, "123", 60000l, TimeUnit.SECONDS).toString();
     }
 
     @GetMapping("/get")
@@ -72,19 +76,19 @@ public class RedisController {
     public String lock() throws InterruptedException {
         Lock lock = redisLockUtil.lock("key", "value", 5);
         Test test1 = testMapper.selectById(137);
-        int i = test1.getCount()+1;
+        int i = test1.getCount() + 1;
         test1.setCount(i);
         Thread.sleep(500);
         testMapper.updateById(test1);
         redisLockUtil.unlock(lock);
-        System.out.println(Thread.currentThread().getName()+"执行成功！");
+        System.out.println(Thread.currentThread().getName() + "执行成功！");
         return "ok";
     }
 
-    @Cacheable(cacheNames = "dict-value" ,key = "#p0 + '_' + #p0")
+    @Cacheable(cacheNames = "dict-value", key = "#p0 + '_' + #p0")
     @PostMapping("/testCaceh")
     public JSONObject testCaceh(@RequestParam(value = "type") Integer type, @RequestParam(value = "parentId") Integer parentId) {
-        String str  = "{\"responseCode\":100000000,\"responseMessage\":\"查询成功\",\"responseData\":[{\"id\":42061,\"name\":\"陕西省\",\"children\":null},{\"id\":28625,\"name\":\"广东省\",\"children\":null},{\"id\":30494,\"name\":\"广西壮族自治区\",\"children\":null},{\"id\":31925,\"name\":\"海南省\",\"children\":null},{\"id\":32175,\"name\":\"重庆市\",\"children\":null},{\"id\":33248,\"name\":\"四川省\",\"children\":null},{\"id\":38101,\"name\":\"贵州省\",\"children\":null},{\"id\":39685,\"name\":\"云南省\",\"children\":null},{\"id\":41272,\"name\":\"西藏自治区\",\"children\":null},{\"id\":26456,\"name\":\"湖南省\",\"children\":null},{\"id\":43500,\"name\":\"甘肃省\",\"children\":null},{\"id\":45050,\"name\":\"青海省\",\"children\":null},{\"id\":45536,\"name\":\"宁夏回族自治区\",\"children\":null},{\"id\":45834,\"name\":\"新疆维吾尔自治区\",\"children\":null},{\"id\":94766,\"name\":\"河北保定\",\"children\":null},{\"id\":317148,\"name\":\"台湾省\",\"children\":null},{\"id\":317149,\"name\":\"香港特别行政区\",\"children\":null},{\"id\":317150,\"name\":\"澳门特别行政区\",\"children\":null},{\"id\":11953,\"name\":\"江苏省\",\"children\":null},{\"id\":812,\"name\":\"天津市\",\"children\":null},{\"id\":1135,\"name\":\"河北省\",\"children\":null},{\"id\":3697,\"name\":\"山西省\",\"children\":null},{\"id\":5327,\"name\":\"内蒙古自治区\",\"children\":null},{\"id\":6726,\"name\":\"辽宁省\",\"children\":null},{\"id\":8445,\"name\":\"吉林省\",\"children\":null},{\"id\":9570,\"name\":\"黑龙江省\",\"children\":null},{\"id\":11701,\"name\":\"上海市\",\"children\":null},{\"id\":458,\"name\":\"北京市\",\"children\":null},{\"id\":13627,\"name\":\"浙江省\",\"children\":null},{\"id\":15140,\"name\":\"安徽省\",\"children\":null},{\"id\":16938,\"name\":\"福建省\",\"children\":null},{\"id\":18227,\"name\":\"江西省\",\"children\":null},{\"id\":20133,\"name\":\"山东省\",\"children\":null},{\"id\":22176,\"name\":\"河南省\",\"children\":null},{\"id\":24954,\"name\":\"湖北省\",\"children\":null}],\"requestId\":\"4b3a51f2-3b35-4bd4-8fab-536ed16bc7b5\"}";
+        String str = "{\"responseCode\":100000000,\"responseMessage\":\"查询成功\",\"responseData\":[{\"id\":42061,\"name\":\"陕西省\",\"children\":null},{\"id\":28625,\"name\":\"广东省\",\"children\":null},{\"id\":30494,\"name\":\"广西壮族自治区\",\"children\":null},{\"id\":31925,\"name\":\"海南省\",\"children\":null},{\"id\":32175,\"name\":\"重庆市\",\"children\":null},{\"id\":33248,\"name\":\"四川省\",\"children\":null},{\"id\":38101,\"name\":\"贵州省\",\"children\":null},{\"id\":39685,\"name\":\"云南省\",\"children\":null},{\"id\":41272,\"name\":\"西藏自治区\",\"children\":null},{\"id\":26456,\"name\":\"湖南省\",\"children\":null},{\"id\":43500,\"name\":\"甘肃省\",\"children\":null},{\"id\":45050,\"name\":\"青海省\",\"children\":null},{\"id\":45536,\"name\":\"宁夏回族自治区\",\"children\":null},{\"id\":45834,\"name\":\"新疆维吾尔自治区\",\"children\":null},{\"id\":94766,\"name\":\"河北保定\",\"children\":null},{\"id\":317148,\"name\":\"台湾省\",\"children\":null},{\"id\":317149,\"name\":\"香港特别行政区\",\"children\":null},{\"id\":317150,\"name\":\"澳门特别行政区\",\"children\":null},{\"id\":11953,\"name\":\"江苏省\",\"children\":null},{\"id\":812,\"name\":\"天津市\",\"children\":null},{\"id\":1135,\"name\":\"河北省\",\"children\":null},{\"id\":3697,\"name\":\"山西省\",\"children\":null},{\"id\":5327,\"name\":\"内蒙古自治区\",\"children\":null},{\"id\":6726,\"name\":\"辽宁省\",\"children\":null},{\"id\":8445,\"name\":\"吉林省\",\"children\":null},{\"id\":9570,\"name\":\"黑龙江省\",\"children\":null},{\"id\":11701,\"name\":\"上海市\",\"children\":null},{\"id\":458,\"name\":\"北京市\",\"children\":null},{\"id\":13627,\"name\":\"浙江省\",\"children\":null},{\"id\":15140,\"name\":\"安徽省\",\"children\":null},{\"id\":16938,\"name\":\"福建省\",\"children\":null},{\"id\":18227,\"name\":\"江西省\",\"children\":null},{\"id\":20133,\"name\":\"山东省\",\"children\":null},{\"id\":22176,\"name\":\"河南省\",\"children\":null},{\"id\":24954,\"name\":\"湖北省\",\"children\":null}],\"requestId\":\"4b3a51f2-3b35-4bd4-8fab-536ed16bc7b5\"}";
         JSONObject jsonObject1 = JSONObject.parseObject(str);
         return jsonObject1;
     }
@@ -171,6 +175,7 @@ public class RedisController {
 
     @Autowired
     private IDictValueService iDictValueService;
+
     /*
      * @description TODO
      * @param type 1-6
@@ -184,13 +189,13 @@ public class RedisController {
         //计算并打印接口耗时
         long startTime = System.currentTimeMillis();
         Map<String, DictValue> dictMapByType = new HashMap<>();
-        if (method == 0){
+        if (method == 0) {
             dictMapByType = iDictValueService.getDictMapByType(type);
-        }else if(method ==1){
+        } else if (method == 1) {
             dictMapByType = iDictValueService.getDictMapByTypeV1(type);
-        }else if (method ==2){
+        } else if (method == 2) {
             dictMapByType = iDictValueService.getDictMapByTypeV2(type);
-        }else if (method ==3){
+        } else if (method == 3) {
             dictMapByType = iDictValueService.getDictMapByTypeV3(type);
         }
 //        for (Map.Entry<String, DictValue> entry : dictMapByType.entrySet()) {
@@ -225,8 +230,9 @@ public class RedisController {
 
     /**
      * 用户在某月的某一天签到
+     *
      * @param userId 用户ID
-     * @param day 日期 (1-31)
+     * @param day    日期 (1-31)
      */
     public void checkIn(Long userId, int day) {
         String key = "user:checkin:" + userId + ":202504"; // 按月份作为key的一部分
@@ -235,8 +241,9 @@ public class RedisController {
 
     /**
      * 查询用户在某月的某一天是否已签到
+     *
      * @param userId 用户ID
-     * @param day 日期 (1-31)
+     * @param day    日期 (1-31)
      * @return 是否签到
      */
     public boolean isCheckIn(Long userId, int day) {
@@ -246,6 +253,7 @@ public class RedisController {
 
     /**
      * 统计用户在某月的总签到天数
+     *
      * @param userId 用户ID
      * @return 签到天数
      */
@@ -257,6 +265,7 @@ public class RedisController {
 
     /**
      * 获取用户在某月的每日签到情况
+     *
      * @param userId 用户ID
      * @return 每日签到情况数组（索引0表示第1天）
      */
@@ -290,6 +299,7 @@ public class RedisController {
         checkInByDayAsKey(userId, date);
         return "签到成功";
     }
+
     @GetMapping("/checkin/status/day")
     public String checkInStatusByDay(@RequestParam("userId") Long userId,
                                      @RequestParam("date") String date) {
@@ -304,12 +314,13 @@ public class RedisController {
     }
 
     @GetMapping("/checkin/getUser")
-    public  Set<Long> getUser(@RequestParam("date") String date) {
-        return getAllCheckInUsers(date,100l);
+    public Set<Long> getUser(@RequestParam("date") String date) {
+        return getAllCheckInUsers(date, 100l);
     }
 
     /**
      * 查询用户在某一天是否签到
+     *
      * @param userId 用户ID
      * @param date   日期，格式为 yyyyMMdd
      * @return 是否签到
@@ -321,6 +332,7 @@ public class RedisController {
 
     /**
      * 用户在某一天签到
+     *
      * @param userId 用户ID
      * @param date   日期，格式为 yyyyMMdd，如 20250401
      */
@@ -331,6 +343,7 @@ public class RedisController {
 
     /**
      * 统计某天的签到人数
+     *
      * @param date 日期，格式为 yyyyMMdd
      * @return 签到人数
      */
@@ -342,7 +355,8 @@ public class RedisController {
 
     /**
      * 获取某天所有签到用户ID列表（根据 offset）
-     * @param date 日期
+     *
+     * @param date      日期
      * @param maxUserId 最大用户ID（用于限制遍历范围）
      * @return 签到用户ID集合
      */
@@ -364,6 +378,94 @@ public class RedisController {
         }
 
         return signedUsers;
+    }
+
+    //============================reids集群槽位分配========================================
+    private static final int TOTAL_SLOTS = 16384;
+
+    // 计算CRC16并返回槽位ID
+    public static int calculateSlot(String key) {
+        CRC16 crc16 = new CRC16();
+        crc16.update(key.getBytes());
+        return (int) (crc16.getValue() % TOTAL_SLOTS);
+    }
+
+    // 生成映射到指定槽位的Hash Tag
+    public static String generateHashTagForSlot(int targetSlot) {
+        int attempt = 0;
+        while (true) {
+            String hashTag = "slot" + targetSlot + "_" + attempt;
+            int slot = calculateSlot(hashTag);
+            if (slot == targetSlot) {
+                return hashTag;
+            }
+            attempt++;
+        }
+    }
+
+    @GetMapping("/shard")
+    public void shard() {
+        // 模拟1000个热点Key的分布情况
+        Map<String, String> distribution = new HashMap<>();
+        int totalKeys = 1000;
+
+        for (int i = 0; i < totalKeys; i++) {
+            String originalKey = "hotkey:" + i;
+            String shardedKey = shardedRedisService.getShardedKey(originalKey);
+            System.out.println("原始Key: " + originalKey + ", 分片Key: " + shardedKey);
+            // 提取分片ID
+            String shardId = shardedKey.split(":")[1];
+            distribution.put(shardId, shardedKey.split(":")[2]);
+        }
+
+        Map<String, Integer> valueCounts = new HashMap<>();
+
+        // 统计每个 value 出现的次数
+        System.out.println("热点Key分布情况:");
+        for (Map.Entry<String, String> entry : distribution.entrySet()) {
+            String value = entry.getValue();
+            valueCounts.put(value, valueCounts.getOrDefault(value, 0) + 1);
+            System.out.println("keyID: " + entry.getKey() + ", 分片名称: " + entry.getValue());
+        }
+        //打印分布情况
+        for (Map.Entry<String, Integer> entry : valueCounts.entrySet()) {
+            System.out.println("分片名称: " + entry.getKey() + ", key数量: " + entry.getValue());
+        }
+    }
+
+    public static void main(String[] args) {
+//        //计算执行时间
+//        //循环十次
+//        for (int i = 0; i < 10; i++) {
+//            long startTime = System.currentTimeMillis();
+//            System.out.println(generateHashTagForSlot(i+10000));
+//            long endTime = System.currentTimeMillis();
+//            System.out.println("执行时间：" + (endTime - startTime) + "毫秒");
+//        }
+
+//        String originalKey = "hot_key";
+//        int splitNum = 18;
+//        List<String> subKeys = new ArrayList<>();
+//
+//        // 生成子key（随机后缀）
+//        for (int i = 0; i < splitNum; i++) {
+//            String suffix = UUID.randomUUID().toString().substring(0, 4);
+//            subKeys.add(originalKey + ":" + suffix);
+//            subKeys.add(originalKey + ":" + i);
+//        }
+//
+//        List<Integer> slots = new ArrayList<>();
+//        // 计算每个子key的槽位并输出
+//        for (String subKey : subKeys) {
+//            int crc16 = CRC16.crc16(subKey.getBytes());
+//            int slot = crc16 % 16384;
+//            System.out.println("子key: " + subKey + "，槽位: " + slot);
+//            slots.add(slot);
+//        }
+//
+//        // 对slots排序输出
+//        slots.sort(Integer::compareTo);
+//        System.out.println("排序后的槽位: " + slots);
     }
 
 }

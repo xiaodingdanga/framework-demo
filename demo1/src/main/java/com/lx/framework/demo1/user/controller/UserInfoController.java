@@ -5,6 +5,7 @@ import com.lx.framework.demo1.fegin.servcie.UserFeignClient;
 import com.lx.framework.demo1.user.entity.UserInfo;
 import com.lx.framework.demo1.user.pojo.vo.DemoVo;
 import com.lx.framework.demo1.user.servcie.UserInfoService;
+import com.lx.framework.demo1.utils.SM4UtilsPrivate;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +30,9 @@ public class UserInfoController {
 
     @Autowired
     private UserFeignClient userFeignClient;
+
+    @Autowired
+    private SM4UtilsPrivate sm4UtilsPrivate;
 
     public ConcurrentHashMap<Long,UserInfo> userInfoConcurrentHashMap = new ConcurrentHashMap<>();
 
@@ -137,10 +141,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/testVm1")
-    public void testVm1() throws InterruptedException {
-        while (true){
-//            Thread.sleep(100);
-            System.out.println(System.currentTimeMillis());
-        }
+    public void testVm1() {
+        String s = sm4UtilsPrivate.enCode("123");
+        System.out.println(s);
+        System.out.println(sm4UtilsPrivate.deCode(s));
     }
 }

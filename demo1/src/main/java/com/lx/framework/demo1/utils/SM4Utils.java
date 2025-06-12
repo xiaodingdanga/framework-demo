@@ -68,7 +68,7 @@ public class SM4Utils {
     }
 
     public static void main(String[] args) {
-        String data = "13000000000";
+        String data = "123";
         SymmetricCrypto sm4 = SmUtil.sm4("698QGB9jn9y0iPbe".getBytes());
         //公钥加密
         try {

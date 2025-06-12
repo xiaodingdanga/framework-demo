@@ -15,7 +15,7 @@ public class SingletonController {
 
     @RequestMapping("/singleton")
     public void encrypt() {
-        Singleton instance = Singleton.getInstance();
+        SingletonDcl instance = SingletonDcl.getInstance();
         System.out.println(instance);
         instance.doSomething();
     }
