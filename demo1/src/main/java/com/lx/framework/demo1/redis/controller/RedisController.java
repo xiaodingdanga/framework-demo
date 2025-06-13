@@ -81,7 +81,7 @@ public class RedisController {
         Thread.sleep(500);
         testMapper.updateById(test1);
         redisLockUtil.unlock(lock);
-        System.out.println(Thread.currentThread().getName() + "执行成功！");
+        System.out.println(Thread.currentThread().getName() + "执行成功1！");
         return "ok";
     }
 
