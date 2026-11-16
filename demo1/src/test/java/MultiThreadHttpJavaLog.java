@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MultiThreadHttpTest {
+public class MultiThreadHttpJavaLog {
 
     // HTTP POST 请求方法
 //    private void sendPostRequest() {
